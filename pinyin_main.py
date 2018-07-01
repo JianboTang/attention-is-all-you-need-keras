@@ -1,4 +1,10 @@
-import os, sys
+#coding:utf-8
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+import os
 import dataloader as dd
 from keras.optimizers import *
 from keras.callbacks import *

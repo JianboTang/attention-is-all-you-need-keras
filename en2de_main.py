@@ -23,7 +23,7 @@ from transformer import Transformer, LRSchedulerPerStep, LRSchedulerPerEpoch
 
 d_model = 256
 s2s = Transformer(itokens, otokens, len_limit=70, d_model=d_model, d_inner_hid=512, \
-				   n_head=4, d_k=64, d_v=64, layers=2, dropout=0.1)
+                   n_head=4, d_k=64, d_v=64, layers=2, dropout=0.1)
 
 lr_scheduler = LRSchedulerPerStep(d_model, 4000)   # there is a warning that it is slow, however, it's ok.
 #lr_scheduler = LRSchedulerPerEpoch(d_model, 4000, Xtrain.shape[0]/64)  # this scheduler only update lr per epoch
@@ -34,5 +34,5 @@ s2s.model.summary()
 try: s2s.model.load_weights('en2de.model.h5')
 except: print('\n\nnew model')
 s2s.model.fit([Xtrain, Ytrain], None, batch_size=64, epochs=30, \
-				validation_data=([Xvalid, Yvalid], None), \
-				callbacks=[lr_scheduler, model_saver])
+                validation_data=([Xvalid, Yvalid], None), \
+                callbacks=[lr_scheduler, model_saver])

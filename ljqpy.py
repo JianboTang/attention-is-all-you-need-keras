@@ -1,6 +1,10 @@
 ﻿# coding = utf-8
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
-import os, re, sys, random, urllib.parse
+import os, re, random
+import codecs
 
 def WriteLine(fout, lst):
 	fout.write('\t'.join([str(x) for x in lst]) + '\n')
@@ -47,6 +51,7 @@ def GetJson(url, cookie='', proxy=''):
 	return content
 
 def FindAllHrefs(url, content=None, regex=''):
+	import urllib.parse
 	ret = set()
 	if content == None: content = GetPage(url)
 	patt = re.compile('href="?([a-zA-Z0-9-_:/.%]+)')
@@ -75,25 +80,25 @@ def FreqDict2List(dt):
 	return sorted(dt.items(), key=lambda d:d[-1], reverse=True)
 
 def SelectRowsbyCol(fn, ofn, st, num = 0):
-	with open(fn, encoding = "utf-8") as fin:
-		with open(ofn, "w", encoding = "utf-8") as fout:
+	with codecs.open(fn, "r", "utf-8") as fin:
+		with codecs.open(ofn, "w", "utf-8") as fout:
 			for line in (ll for ll in fin.read().split('\n') if ll != ""):
 				if line.split('\t')[num] in st:
 					fout.write(line + '\n')
 
 def MergeFiles(dir, objfile, regstr = ".*"):
-	with open(objfile, "w", encoding = "utf-8") as fout:
+	with codecs.open(objfile, "w", "utf-8") as fout:
 		for file in os.listdir(dir):
 			if re.match(regstr, file):
-				with open(os.path.join(dir, file), encoding = "utf-8") as filein:
+				with codecs.open(os.path.join(dir, file), "r", "utf-8") as filein:
 					fout.write(filein.read())
 
 def JoinFiles(fnx, fny, ofn):
-	with open(fnx, encoding = "utf-8") as fin:
+	with codecs.open(fnx, "r", "utf-8") as fin:
 		lx = [vv for vv in fin.read().split('\n') if vv != ""]
-	with open(fny, encoding = "utf-8") as fin:
+	with codecs.open(fny, "r", "utf-8") as fin:
 		ly = [vv for vv in fin.read().split('\n') if vv != ""]
-	with open(ofn, "w", encoding = "utf-8") as fout:
+	with codecs.open(ofn, "w", "utf-8") as fout:
 		for i in range(min(len(lx), len(ly))):
 			fout.write(lx[i] + "\t" + ly[i] + "\n")
 
@@ -101,36 +106,36 @@ def JoinFiles(fnx, fny, ofn):
 def RemoveDupRows(file, fobj='*'):
 	st = set()
 	if fobj == '*': fobj = file
-	with open(file, encoding = "utf-8") as fin:
+	with codecs.open(file, "r", "utf-8") as fin:
 		for line in fin.read().split('\n'):
 			if line == "": continue
 			st.add(line)
-	with open(fobj, "w", encoding = "utf-8") as fout:
+	with codecs.open(fobj, "w", "utf-8") as fout:
 		for line in st:
 			fout.write(line + '\n')
 			
 def LoadCSV(fn):
 	ret = []
-	with open(fn, encoding='utf-8') as fin:
+	with codecs.open(fn, "r", 'utf-8') as fin:
 		for line in fin:
 			lln = line.rstrip('\r\n').split('\t')
 			ret.append(lln)
 	return ret
 
 def LoadCSVg(fn):
-	with open(fn, encoding='utf-8') as fin:
+	with codecs.open(fn, "r", 'utf-8') as fin:
 		for line in fin:
 			lln = line.rstrip('\r\n').split('\t')
 			yield lln
 
 def SaveCSV(csv, fn):
-	with open(fn, 'w', encoding='utf-8') as fout:
+	with codecs.open(fn, 'w', 'utf-8') as fout:
 		for x in csv:
 			WriteLine(fout, x)
 
 def SplitTables(fn, limit=3):
 	rst = set()
-	with open(fn, encoding='utf-8') as fin:
+	with codecs.open(fn, "r", 'utf-8') as fin:
 		for line in fin:
 			lln = line.rstrip('\r\n').split('\t')
 			rst.add(len(lln))
@@ -139,38 +144,38 @@ def SplitTables(fn, limit=3):
 		return
 	for ii in rst:
 		print('%d columns' % ii)
-		with open(fn.replace('.txt', '') + '.split.%d.txt' % ii, 'w', encoding='utf-8') as fout:
-			with open(fn, encoding='utf-8') as fin:
+		with codecs.open(fn.replace('.txt', '') + '.split.%d.txt' % ii, 'w', 'utf-8') as fout:
+			with codecs.open(fn, "r", 'utf-8') as fin:
 				for line in fin:
 					lln = line.rstrip('\r\n').split('\t')
 					if len(lln) == ii:
 						fout.write(line)
 
 def LoadSet(fn):
-	with open(fn, encoding = "utf-8") as fin:
+	with codecs.open(fn, "r", "utf-8") as fin:
 		st = set(ll for ll in fin.read().split('\n') if ll != "")
 	return st
 
 def LoadList(fn):
-	with open(fn, encoding = "utf-8") as fin:
+	with codecs.open(fn, "r", "utf-8") as fin:
 		st = list(ll for ll in fin.read().split('\n') if ll != "")
 	return st
 
 def LoadDict(fn, func=str):
 	dict = {}
-	with open(fn, encoding = "utf-8") as fin:
+	with codecs.open(fn, "r", "utf-8") as fin:
 		for lv in (ll.split('\t', 1) for ll in fin.read().split('\n') if ll != ""):
 			dict[lv[0]] = func(lv[1])
 	return dict
 
 def SaveDict(dict, ofn, output0 = True):
-	with open(ofn, "w", encoding = "utf-8") as fout:
+	with codecs.open(ofn, "w", "utf-8") as fout:
 		for k in dict.keys():
 			if output0 or dict[k] != 0:
 				fout.write(str(k) + "\t" + str(dict[k]) + "\n")
 			
 def SaveList(st, ofn):
-	with open(ofn, "w", encoding = "utf-8") as fout:
+	with codecs.open(ofn, "w", "utf-8") as fout:
 		for k in st:
 			fout.write(str(k) + "\n")
 
@@ -180,7 +185,7 @@ def ProcessDir(dir, func, param):
 		func(os.path.join(dir, file), param)
 
 def GetLines(fn):
-	with open(fn, encoding = "utf-8", errors = 'ignore') as fin:
+	with codecs.open(fn, "r", "utf-8", errors = 'ignore') as fin:
 		lines = list(map(str.strip, fin.readlines()))
 	return lines
 
@@ -191,20 +196,20 @@ def SortRows(file, fobj, cid, type = int, rev = True):
 	for dv in lines:
 		if len(dv) <= cid: continue
 		dat.append((type(dv[cid]), dv))
-	with open(fobj, "w", encoding = "utf-8") as fout:
+	with codecs.open(fobj, "w", "utf-8") as fout:
 		for dd in sorted(dat, reverse = rev):
 			fout.write('\t'.join(dd[1]) + '\n')
 
 def SampleRows(file, fobj, num):
-	zz = list(open(file, encoding='utf-8'))
+	zz = list(codecs.open(file, "r", 'utf-8'))
 	num = min([num, len(zz)])
 	zz = random.sample(zz, num)
-	with open(fobj, 'w', encoding='utf-8') as fout:
+	with codecs.open(fobj, 'w', 'utf-8') as fout:
 		for xx in zz: fout.write(xx)
 
 def SetProduct(file1, file2, fobj):
 	l1, l2 = GetLines(file1), GetLines(file2)
-	with open(fobj, 'w', encoding='utf-8') as fout:
+	with codecs.open(fobj, 'w', 'utf-8') as fout:
 		for z1 in l1:
 			for z2 in l2:
 				fout.write(z1 + z2 + '\n')
@@ -238,10 +243,10 @@ def sql(cmd=''):
 		print(xx + " : " + ct[xx])
 
 	total = 0
-	with open(ct['to'], 'w', encoding = 'utf-8') as fout:
+	with codecs.open(ct['to'], 'w', 'utf-8') as fout:
 		for fn in fl:
 			print('selecting ' + fn)
-			for xx in open(fn, encoding = 'utf-8'):
+			for xx in codecs.open(fn, "r", 'utf-8'):
 				x = xx.rstrip('\r\n').split('\t')
 				if eval(ct['where']):
 					if ct['select'] == '*': res = "\t".join(x) + '\n'
